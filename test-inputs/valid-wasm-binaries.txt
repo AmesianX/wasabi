@@ -1,6 +1,7 @@
 # Lists all .wasm binaries which Wasabi and its parser library can/should be able to process.
 # Used by integration tests, which are run with `cargo test`.
-# This file is generated via `cargo test update_valid_inputs_list -- --nocapture`.
+# This file is generated via `cargo test update_valid_inputs_list -- --ignored --nocapture`
+# inside the `crates/test_utilities/` directory.
 # Lines that begin with # are ignored.
 # Paths are relative to the parent directory of this file.
 invalid/parsing-errors/speed/UE4Game-HTML5-Shipping.wasm

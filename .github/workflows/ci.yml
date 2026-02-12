@@ -4,9 +4,9 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   wasabi_wasm:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: sudo apt install wabt && wasm-validate --version
       name: Install WABT
     - run: cargo --version; rustc --version; cargo clippy --version
@@ -18,9 +18,9 @@ jobs:
     - run: cargo test -- --nocapture --test-threads=1 --color=always
       working-directory: crates/wasabi_wasm/
   wasabi:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: sudo apt install wabt && wasm-validate --version
       name: Install WABT
     - run: cargo --version; rustc --version; cargo clippy --version

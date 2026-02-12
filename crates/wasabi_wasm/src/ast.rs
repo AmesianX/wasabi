@@ -1936,7 +1936,7 @@ impl Function {
 
     // Accessors and iterators for parameters and locals uniformly.
 
-    pub fn param_or_local(&self, idx: Idx<Local>) -> ParamOrLocalRef {
+    pub fn param_or_local(&self, idx: Idx<Local>) -> ParamOrLocalRef<'_> {
         self.param_or_locals()
             .nth(idx.to_usize())
             .expect("invalid local index")
@@ -1951,7 +1951,7 @@ impl Function {
     //         .1
     // }
 
-    pub fn param_or_locals(&self) -> impl Iterator<Item = (Idx<Local>, ParamOrLocalRef)> {
+    pub fn param_or_locals(&self) -> impl Iterator<Item = (Idx<Local>, ParamOrLocalRef<'_>)> {
         let params = self.params().map(|(i, p)| (i, ParamOrLocalRef::Param(p)));
         let locals = self.locals().map(|(i, l)| (i, ParamOrLocalRef::Local(l)));
         params.chain(locals)
@@ -1987,7 +1987,7 @@ impl Function {
     // }
 
     /// Returns the parameters (type and debug name, if any) together with their index.
-    pub fn params(&self) -> impl Iterator<Item = (Idx<Local>, ParamRef)> {
+    pub fn params(&self) -> impl Iterator<Item = (Idx<Local>, ParamRef<'_>)> {
         self.type_.inputs().iter().enumerate().map(|(i, &type_)| {
             (
                 i.into(),

@@ -1,3 +1,5 @@
+#![allow(unused_assignments)]
+
 //! Typed errors and warnings when parsing/encoding of modules.
 
 use crate::extensions::WasmExtension;

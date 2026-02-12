@@ -30,7 +30,7 @@ pub struct ModuleInfo {
     pub original_function_imports_count: usize,
 }
 
-impl<'a> From<&'a Module> for ModuleInfo {
+impl From<&Module> for ModuleInfo {
     fn from(module: &Module) -> Self {
         ModuleInfo {
             functions: module.functions.iter().map(Into::into).collect(),
@@ -66,7 +66,7 @@ pub struct FunctionInfo {
     // in the JSON as `"name": null`, which is a lot of overhead...
 }
 
-impl<'a> From<&'a Function> for FunctionInfo {
+impl From<&Function> for FunctionInfo {
     fn from(function: &Function) -> FunctionInfo {
         FunctionInfo {
             type_: function.type_,

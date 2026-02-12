@@ -243,7 +243,7 @@ pub fn parse_module(bytes: &[u8]) -> Result<(Module, Offsets, ParseWarnings), Pa
             wp::Payload::StartSection { func, range } => {
                 section_offsets.push((SectionId::Start, range.start));
 
-                let prev_start = std::mem::replace(&mut module.start, Some(func.into()));
+                let prev_start = module.start.replace(func.into());
                 if prev_start.is_some() {
                     Err(ParseIssue::message(
                         range.start,
@@ -511,7 +511,7 @@ fn parse_body(
         let (count, type_) = locals_reader.read()?;
         let count = u32_to_usize(count);
         let type_ = parse_val_ty(type_, offset)?;
-        locals.extend(std::iter::repeat(Local::new(type_)).take(count));
+        locals.extend(std::iter::repeat_n(Local::new(type_), count));
         offset = locals_reader.original_position();
     }
 

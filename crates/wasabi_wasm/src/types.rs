@@ -17,26 +17,26 @@
 //! WebAssembly type checking and type inference can be though of in increasing levels of
 //! difficulty.
 //! - In the simplest case, the _instruction itself_ already gives you a precise type, e.g.,
-//! `i32.add` takes two `i32` value types as input and returns a single `i32`, the instruction type
-//! would be `[i32, i32] -> [i32]`.
+//!   `i32.add` takes two `i32` value types as input and returns a single `i32`, the instruction type
+//!   would be `[i32, i32] -> [i32]`.
 //! - Next, some instructions require additional _static context_ to infer the type. E.g., the
-//! return type of `local.get $l0` depends on the type of local `$0`, and the arguments and return
-//! value of `call f` depends on the called function `f`'s type.
+//!   return type of `local.get $l0` depends on the type of local `$0`, and the arguments and return
+//!   value of `call f` depends on the called function `f`'s type.
 //! - Some instructions are _value polymorphic_. That is, they can have several different types,
-//! depending on preceding instructions. E.g., the `drop` in `i32.const 0; drop` takes an `i32` as
-//! input, wheras the `drop` in `i64.const 0; drop` takes an `i64`. Type checking value polymorphic
-//! instructions requires modeling an abstract _type stack_, which models the implicit evaluation
-//! stack at the type level.
+//!   depending on preceding instructions. E.g., the `drop` in `i32.const 0; drop` takes an `i32` as
+//!   input, wheras the `drop` in `i64.const 0; drop` takes an `i64`. Type checking value polymorphic
+//!   instructions requires modeling an abstract _type stack_, which models the implicit evaluation
+//!   stack at the type level.
 //! - Then there are _blocks_ and _branches_, where the branch instruction's type depends on the
-//! targeted block. Blocks are nested and have their own "local" type stack, i.e., instructions
-//! inside a block cannot access values on the parent stack of their surrounding block.
-//! This requires modeling the type stack as a nested "stack of stacks".
+//!   targeted block. Blocks are nested and have their own "local" type stack, i.e., instructions
+//!   inside a block cannot access values on the parent stack of their surrounding block.
+//!   This requires modeling the type stack as a nested "stack of stacks".
 //! - Finally, there are instructions that are _stack polymorphic_. These can not only have one of
-//! several value types, but even a different _number_ of inputs and outputs. Stack-polymorphism
-//! only appears in instructions that leave the program in an _unreachable_ state, i.e., it is
-//! statically known that following instructions inside the current block will never be executed.
-//! For example any code after an unconditional branch `br` (which leaves the current block) or
-//! after an `unreachable` instruction (which terminates the program with an error) is unreachable.
+//!   several value types, but even a different _number_ of inputs and outputs. Stack-polymorphism
+//!   only appears in instructions that leave the program in an _unreachable_ state, i.e., it is
+//!   statically known that following instructions inside the current block will never be executed.
+//!   For example any code after an unconditional branch `br` (which leaves the current block) or
+//!   after an `unreachable` instruction (which terminates the program with an error) is unreachable.
 //!
 //! # Unreachable and stack-polymorphism
 //!
@@ -88,9 +88,9 @@
 //! Ideally, a type inference algorithm for WebAssembly would have all of the following three
 //! characteristics:
 //! - Streaming processing, i.e., it can always immediately produce an answer whenever we get the
-//! next instruction as input.
+//!   next instruction as input.
 //! - Fully concrete types in the surface language, i.e., it can assign/infer concrete instruction
-//! types that only contain "WebAssembly value types", not "unknown" (`?`) or other escape hatches.
+//!   types that only contain "WebAssembly value types", not "unknown" (`?`) or other escape hatches.
 //! - Assign a type for _all_ instructions in the program, not just a subset.
 //!
 //! With the current design of WebAssembly, there is no way to get all three at the same time.
@@ -106,11 +106,11 @@
 //! and all other comments in that issue thread.
 //! The reasons boil down to:
 //! - They wanted to do _some_ type checking for unreachable code (and not turn the type checker
-//! completely off), as to avoid security bugs in compilers generating native code from such
-//! "unchecked" input.
+//!   completely off), as to avoid security bugs in compilers generating native code from such
+//!   "unchecked" input.
 //! - They wanted to make sure any individually type-correct instruction sequence can be combined
-//! with another one, if their "input and output types" matched. This makes writing compilers
-//! easier that can glue together any individually to WebAssmebly translated code.
+//!   with another one, if their "input and output types" matched. This makes writing compilers
+//!   easier that can glue together any individually to WebAssmebly translated code.
 //!
 //! While I can sympathize with the first argument, I don't think the second argument justified the
 //! high cost in complexity, especially because all of this complexity is only there for code that
@@ -137,9 +137,9 @@
 //! Instead, we chose the following compromise:
 //! - Our algorithm is streaming.
 //! - We _type check_ all instructions, including unreachable code, as in the spec validation
-//! algorithm.
+//!   algorithm.
 //! - We assign concrete, simple types (i.e., using only WebAssembly core value types, not `?`) for
-//! all instructions that are reachable.
+//!   all instructions that are reachable.
 //! - For all unreachable instructions, we do _not_ assign an instruction type.
 //!
 // TODO Inspect V8, SpiderMonkey, JSC, Wasmtime, Wasmer, WABT, Binaryen, spec interpreter for how
@@ -162,13 +162,13 @@
 //!
 //! In terms of type checking implementations, see:
 //! - The reference interpreter, which assigns types, but in a richer type language:
-//! https://github.com/WebAssembly/spec/blob/master/interpreter/valid/valid.ml
+//!   https://github.com/WebAssembly/spec/blob/master/interpreter/valid/valid.ml
 //! - Conrad Watt's paper, page 9, right column:
-//! https://www.cl.cam.ac.uk/~caw77/papers/mechanising-and-verifying-the-webassembly-specification.pdf
+//!   https://www.cl.cam.ac.uk/~caw77/papers/mechanising-and-verifying-the-webassembly-specification.pdf
 //! - The instruction index in the specification: https://webassembly.github.io/spec/core/valid/instructions.html
-//! for a good overview of the typing rules for individual and sequences of instructions.
+//!   for a good overview of the typing rules for individual and sequences of instructions.
 //! - WABT type checker: https://github.com/WebAssembly/wabt/blob/main/src/type-checker.cc
-//! which follows the validation algorithm closely.
+//!   which follows the validation algorithm closely.
 
 use std::convert::TryFrom;
 use std::fmt;
@@ -346,9 +346,9 @@ impl TryFrom<StackType> for Vec<ValType> {
 /// A more fully-featured type checker might want to assign types also to the instructions that are
 /// in unreachable code, but those instruction types have two problems:
 /// 1. They cannot be expressed with the surface WebAssembly type syntax (i.e., `ValType`s),
-/// because of unconstrained types, i.e., they would be over `InferredValType`.
+///    because of unconstrained types, i.e., they would be over `InferredValType`.
 /// 2. They cannot be determined in a streaming fashion with O(1) memory and O(1) runtime, because
-/// it is only clear which values a stack-polymorphic instruction produces at the _end_ of blocks.
+///    it is only clear which values a stack-polymorphic instruction produces at the _end_ of blocks.
 ///
 /// For these two reasons, we restrict ourselves here to assign only types
 /// for reachable instructions.
@@ -452,7 +452,7 @@ impl std::error::Error for TypeError {}
 /// but differs in a couple of ways:
 /// - We produce types for each instruction, instead of only checking if they are valid.
 /// - Minor details, see below, e.g., merged value and control stack, nested stack instead of
-/// numerical stack height, precomputed label types.
+///   numerical stack height, precomputed label types.
 #[derive(Debug)]
 pub struct TypeChecker<'module> {
     /// For looking up the type of globals and functions.
